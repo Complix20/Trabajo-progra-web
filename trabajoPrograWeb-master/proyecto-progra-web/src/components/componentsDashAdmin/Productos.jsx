@@ -54,7 +54,7 @@ function Productos({ productos, onDesactivarProducto, onProductAdded }) {
       <div className='bu'>
       <SearchBox onSearch={handleSearch} />
       </div>
-      
+      <div className='tab'>
       <table>
         <thead>
           <tr>
@@ -85,6 +85,7 @@ function Productos({ productos, onDesactivarProducto, onProductAdded }) {
           ))}
         </tbody>
       </table>
+      </div>
       <div className="pagination">
         <button onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
           Anterior
