@@ -1,0 +1,4 @@
+GET http://localhost:3001/carritoDeCompras
+
+POST http://localhost:3001/usuarios
+Content-Type: application/json
