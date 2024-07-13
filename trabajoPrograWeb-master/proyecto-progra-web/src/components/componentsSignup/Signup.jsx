@@ -5,6 +5,7 @@ import './Signup.css';
 
 import TopBar from '../componentsTopBar/TopBar.jsx';
 import Footer from '../componentsFooter/Footer.jsx';
+import SignupAPI from '../../api/signup'; // Asegúrate de ajustar la ruta según sea necesario
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -16,17 +17,27 @@ const Signup = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
 
-    const handleClick = () => {
+    const handleClick = async () => {
         if (password !== confirmPassword) {
             setError('Las contraseñas no coinciden.');
             return;
         }
 
-        alert('Usuario registrado exitosamente.');
-        const newUser = { usuario: nombre, password }; 
-        user.setUser(newUser); 
-        localStorage.setItem('user', JSON.stringify(newUser));
-        navigate('/');
+        try {
+            const response = await SignupAPI.register({ nombre, apellido, correo, password });
+            if (response.message === 'Usuario registrado exitosamente.') {
+                alert('Usuario registrado exitosamente.');
+                const newUser = { usuario: correo, password };
+                localStorage.setItem('user', JSON.stringify(newUser));
+                user.setUser(newUser);
+                navigate('/');
+            } else {
+                setError(response.message || 'Error al registrar usuario.');
+            }
+        } catch (error) {
+            console.error('Error al registrar usuario:', error);
+            setError(error.message || 'Error al registrar usuario.');
+        }
     };
 
     return (

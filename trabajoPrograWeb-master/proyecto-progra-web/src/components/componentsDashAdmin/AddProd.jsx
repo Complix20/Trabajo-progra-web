@@ -1,9 +1,9 @@
-// src/Componentes/AddProd.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Styles/AddProd.css';
+import ProductosAPI from '../../api/productos'; // Asegúrate de ajustar la ruta según sea necesario
 
-function AddProd({ onProductAdded }) {
+function AddProd() {
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [caracteristicas, setCaracteristicas] = useState('');
@@ -34,11 +34,8 @@ function AddProd({ onProductAdded }) {
     }
   }, [location]);
 
-  const generateUniqueId = () => Math.floor(Date.now() * Math.random());
-
-  const handleGuardar = () => {
+  const handleGuardar = async () => {
     const nuevoProducto = {
-      id: id || generateUniqueId(),
       nombre,
       descripcion,
       caracteristicas,
@@ -48,23 +45,32 @@ function AddProd({ onProductAdded }) {
       tipo,
       stock,
       imagen,
-      fechaRegistro: new Date().toLocaleDateString(),
     };
 
-    onProductAdded(nuevoProducto);
+    try {
+      if (id) {
+        // Actualizar producto
+        await ProductosAPI.update({ ...nuevoProducto, id });
+      } else {
+        // Crear nuevo producto
+        await ProductosAPI.create(nuevoProducto);
+      }
 
-    // Restablecer los campos del formulario
-    setNombre('');
-    setDescripcion('');
-    setCaracteristicas('');
-    setMarca('');
-    setSerie('');
-    setPrecio('');
-    setTipo('');
-    setStock('');
-    setImagen(null);
+      // Restablecer los campos del formulario
+      setNombre('');
+      setDescripcion('');
+      setCaracteristicas('');
+      setMarca('');
+      setSerie('');
+      setPrecio('');
+      setTipo('');
+      setStock('');
+      setImagen(null);
 
-    navigate('/admin-app/productos'); // Redirigir a la página de productos
+      navigate('/admin-app/productos'); // Redirigir a la página de productos
+    } catch (error) {
+      console.error('Error saving product:', error);
+    }
   };
 
   const handleImagenChange = (e) => {
@@ -109,4 +115,3 @@ function AddProd({ onProductAdded }) {
 }
 
 export default AddProd;
-
