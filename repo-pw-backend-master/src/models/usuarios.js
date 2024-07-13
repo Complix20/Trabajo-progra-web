@@ -1,64 +1,36 @@
-const usuarios = [
-    {
-      Id: 1,
-      IdRol: 1,
-      Password: "admin123",
-      Usuario: "admin_user1"
-    },
-    {
-      Id: 2,
-      IdRol: 2,
-      Password: "user123",
-      Usuario: "regular_user1"
-    },
-    {
-      Id: 3,
-      IdRol: 2,
-      Password: "user456",
-      Usuario: "regular_user2"
-    },
-    {
-      Id: 4,
-      IdRol: 2,
-      Password: "user789",
-      Usuario: "regular_user3"
-    },
-    {
-      Id: 5,
-      IdRol: 1,
-      Password: "admin456",
-      Usuario: "admin_user2"
-    },
-    {
-      Id: 6,
-      IdRol: 2,
-      Password: "user101",
-      Usuario: "regular_user4"
-    },
-    {
-      Id: 7,
-      IdRol: 2,
-      Password: "user102",
-      Usuario: "regular_user5"
-    },
-    {
-      Id: 8,
-      IdRol: 2,
-      Password: "user103",
-      Usuario: "regular_user6"
-    },
-    {
-      Id: 9,
-      IdRol: 1,
-      Password: "admin789",
-      Usuario: "admin_user3"
-    },
-    {
-      Id: 10,
-      IdRol: 2,
-      Password: "user104",
-      Usuario: "regular_user7"
-    }
-];
+// models/Usuario.js
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
+import Rol from './roles.js';
 
-export default usuarios;
+const Usuario = sequelize.define('Usuario', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  idRol: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Rol,
+      key: 'id'
+    }
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  usuario: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  }
+}, {
+  tableName: 'usuarios',
+  timestamps: false
+});
+
+Rol.hasMany(Usuario, { foreignKey: 'idRol', as: 'usuarios' });
+Usuario.belongsTo(Rol, { foreignKey: 'idRol', as: 'rol' });
+
+export default Usuario;

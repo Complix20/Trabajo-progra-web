@@ -1,52 +1,83 @@
-import repository from '../repositories/detalleOrdenes.js'
+import model from '../models/detalleOrdenes.js';
+import Orden from '../models/ordenes.js';
+import Producto from '../models/productos.js';
+import RepositoryBase from '../repositories/repositorio.js';
 
-const findAll = (req, res) => {
+const repository = new RepositoryBase(model);
 
-    const detalleOrdenes = repository.findAll();
-
-    return sendResult(detalleOrdenes, res);
+const findAll = async (req, res) => {
+    try {
+        const detalleOrdenes = await repository.findAll({
+            include: [
+                { model: Orden, as: 'orden' },
+                { model: Producto, as: 'producto' }
+            ]
+        });
+        return sendResult(detalleOrdenes, res);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching order details' });
+    }
 }
 
-const create = (req, res) => {
-    const detalleOrden = req.body;
-    console.log(detalleOrden)
-    const detalleOrdenCreated = repository.create(detalleOrden);
-
-    return sendResult(detalleOrdenCreated, res);
+const create = async (req, res) => {
+    try {
+        const detalleOrden = req.body;
+        console.log(detalleOrden);
+        const detalleOrdenCreated = await repository.create(detalleOrden);
+        return sendResult(detalleOrdenCreated, res);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error creating order detail' });
+    }
 }
 
-const findOne = (req, res) => {
-
-    const id = req.params.id;
-
-    const result = repository.findOne(id);
-
-    return sendResult(result, res);
+const findOne = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await repository.findOne({
+            where: { id },
+            include: [
+                { model: Orden, as: 'orden' },
+                { model: Producto, as: 'producto' }
+            ]
+        });
+        return sendResult(result, res);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error fetching order detail' });
+    }
 }
 
-const remove = (req, res) => {
-    const id = req.params.id;
-
-    const result = repository.remove(id);
-
-    return sendResult(result, res);
+const remove = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const result = await repository.remove(id);
+        return sendResult(result, res);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error deleting order detail' });
+    }
 }
 
-const update = (req, res) => {
-    const detalleOrden = req.body;
-
-    const result = repository.update(detalleOrden);
-
-    return sendResult(result, res);
+const update = async (req, res) => {
+    try {
+        const detalleOrden = req.body;
+        const result = await repository.update(detalleOrden);
+        return sendResult(result, res);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Error updating order detail' });
+    }
 }
 
 const sendResult = (result, res) => {
     if (result)
         return res.status(200).json(result);
     else
-        return res.status(500).json({ message: 'Detalle de orden no encontrado.'});
+        return res.status(404).json({ message: 'Detalle de orden no encontrado.' });
 }
 
-const controller = { findAll, create, findOne, remove, update }
+const controller = { findAll, create, findOne, remove, update };
 
 export default controller;

@@ -1,18 +1,29 @@
-// src/Componentes/Productos.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Styles/Productos.css';
 import SearchBox from './SearchBox';
+import ProductosAPI from '../../api/productos'; // Asegúrate de ajustar la ruta según sea necesario
 
-function Productos({ productos, onDesactivarProducto, onProductAdded }) {
+const Productos = ({ onDesactivarProducto, onProductAdded }) => {
+  const [productos, setProductos] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
-  const itemsPerPage = 7; // Limitar a 4 productos por página
+  const itemsPerPage = 7; // Limitar a 7 productos por página
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setFilteredProducts(productos);
-  }, [productos]);
+    const fetchProductos = async () => {
+      try {
+        const dataProductos = await ProductosAPI.findAll();
+        setProductos(dataProductos);
+        setFilteredProducts(dataProductos);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
 
   const handleSearch = (query) => {
     const filtered = productos.filter((product) =>
@@ -25,14 +36,20 @@ function Productos({ productos, onDesactivarProducto, onProductAdded }) {
     setCurrentPage(1);
   };
 
-  const handleDelete = (id) => {
-    onDesactivarProducto(id);
+  const handleDelete = async (id) => {
+    try {
+      await ProductosAPI.remove(id);
+      setProductos(prevProductos => prevProductos.filter(product => product.id !== id));
+      setFilteredProducts(prevFiltered => prevFiltered.filter(product => product.id !== id));
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
   };
 
   const handleView = (product) => {
     navigate(`/admin-app/ver-producto/${product.id}`, { state: { product } });
   };
-  
+
   const handleUpdate = (product) => {
     navigate('/admin-app/agregar-producto', { state: { product } });
   };

@@ -1,33 +1,27 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import cors from 'cors'
+import app from './app.js';
+import sequelize from './src/config/database.js';
 
-import usuariosRouter from './src/routes/usuarios.js';
-import rolesRouter from './src/routes/roles.js';
-import productosRouter from './src/routes/productos.js';
-import ordenesRouter from './src/routes/ordenes.js';
-import detalleOrdenesRouter from './src/routes/detalleOrdenes.js';
-import clientesDireccionesRouter from './src/routes/clientesDirecciones.js';
-import clientesRouter from './src/routes/clientes.js';
-import carritoDeComprasRouter from './src/routes/carritoDeCompras.js';
+async function main() {
+    try {
+        
+        const init = process.argv[2];
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+        if (init)
+            await sequelize.sync({ force: true });
+        else 
+            await sequelize.sync({ force: false });
+        
+        console.log('Database synchronized');
 
-app.get('/', (req, res) => {
-    return res.json({ message: "Hello World", code: "201"});
-})
+        const port = process.env.PORT || 3001;
+        
+        app.listen(port, () => {
+            console.log('Server running on port 3001');
+        });
 
-app.use('/usuarios', usuariosRouter);
-app.use('/roles', rolesRouter);
-app.use('/productos', productosRouter);
-app.use('/ordenes', ordenesRouter);
-app.use('/detalleOrdenes', detalleOrdenesRouter);
-app.use('/clientesDirecciones', clientesDireccionesRouter);
-app.use('/clientes', clientesRouter);
-app.use('/carritoDeCompras', carritoDeComprasRouter);
+    } catch (error) {
+        console.error(error)
+    }
+}
 
-app.listen(3001,() => {
-    console.log('Server is running on port 3001')
-})
+main();
