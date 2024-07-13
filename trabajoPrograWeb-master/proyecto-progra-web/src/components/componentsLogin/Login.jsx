@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../../context/User.jsx';
+import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 import TopBar from '../componentsTopBar/TopBar.jsx';
 import Footer from '../componentsFooter/Footer.jsx';
-import AuthAPI from '../../api/auth'; // Asegúrate de ajustar la ruta según sea necesario
+import AuthAPI from '../../api/auth.js'; // Asegúrate de ajustar la ruta según sea necesario
+import { UsuarioLogueado } from '../componentsTopBar/UsuarioLogueado.jsx';
 
 const Login = () => {
     const navigate = useNavigate();
-    const user = useUser();
     const [usuario, setUsuario] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -18,9 +16,8 @@ const Login = () => {
         try {
             const response = await AuthAPI.login({ usuario, password });
             if (response.message === 'Login exitoso.') {
-                const userData = { usuario, password };
+                const userData = { usuario: response.user.usuario, password, idRol: response.user.idRol }; // Incluye el idRol
                 localStorage.setItem('user', JSON.stringify(userData));
-                user.setUser(userData);
                 navigate('/');
             } else {
                 setError(response.message || 'Error al iniciar sesión.');
@@ -29,6 +26,11 @@ const Login = () => {
             console.error('Error al iniciar sesión:', error); // Agregar un log para errores
             setError(error.message || 'Error al iniciar sesión.');
         }
+    };
+
+    const handleCerrarSesion = () => {
+        localStorage.removeItem('user');
+        navigate('/');
     };
 
     return (
@@ -57,10 +59,10 @@ const Login = () => {
                     <br />
                     <button onClick={handleClick}>Ingresar</button>
                     <div id='olvide-contraseña'>
-                        { user?.usuario ? <UsuarioLogueado username={user.usuario} onClick={handleCerrarSesion} /> : <a><Link to='/recuperar-contraseña'>Olvidé mi contraseña</Link></a> }
+                        { localStorage.getItem('user') ? <UsuarioLogueado onClick={handleCerrarSesion} /> : <a><Link to='/recuperar-contraseña'>Olvidé mi contraseña</Link></a> }
                     </div>
                     <div id='no-tengo-cuenta'>
-                        { user?.usuario ? <UsuarioLogueado username={user.usuario} onClick={handleCerrarSesion} /> : <a><Link to='/signup'>No tengo cuenta, deseo registrarme</Link></a> }
+                        { localStorage.getItem('user') ? <UsuarioLogueado onClick={handleCerrarSesion} /> : <a><Link to='/signup'>No tengo cuenta, deseo registrarme</Link></a> }
                     </div>
                 </main>
             </div>     

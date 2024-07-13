@@ -1,27 +1,33 @@
-// src/Componentes/UsuariosRegistrados.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Styles/UsuariosRegistrados.css';
 import SearchBox from './SearchBox';
+import ClientesAPI from '../../api/clientes'; // Ajusta la ruta según sea necesario
 
-function Usuarios({ usuarios, onDesactivarUsuario }) {
-  const [filteredUsers, setFilteredUsers] = useState([]);
+function UsuariosRegistrados({ onDesactivarUsuario }) {
+  const [clientes, setClientes] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
   const itemsPerPage = 4; // Limitar a 4 usuarios por página
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
-    setFilteredUsers(usuarios);
-  }, [usuarios]);
+    const fetchClientes = async () => {
+      const dataClientes = await ClientesAPI.findAll();
+      setClientes(dataClientes);
+      setFilteredClients(dataClientes);
+    };
+    fetchClientes();
+  }, []);
 
   const handleSearch = (query) => {
-    const filtered = usuarios.filter((user) =>
-      String(user.id).toLowerCase().includes(query.toLowerCase()) ||
-      String(user.serie).toLowerCase().includes(query.toLowerCase()) ||
-      user.nombre.toLowerCase().includes(query.toLowerCase())
+    const filtered = clientes.filter((client) =>
+      String(client.id).toLowerCase().includes(query.toLowerCase()) ||
+      (client.nombre && client.nombre.toLowerCase().includes(query.toLowerCase())) ||
+      (client.apellido && client.apellido.toLowerCase().includes(query.toLowerCase())) ||
+      (client.correo && client.correo.toLowerCase().includes(query.toLowerCase()))
     );
-    console.log("Filtered Users: ", filtered); // Agrega este console.log para verificar
-    setFilteredUsers(filtered);
+    setFilteredClients(filtered);
     setCurrentPage(1);
   };
 
@@ -29,16 +35,20 @@ function Usuarios({ usuarios, onDesactivarUsuario }) {
     onDesactivarUsuario(id);
   };
 
-  const handleView = (user) => {
-    navigate(`/admin-app/ver-usuario/${user.id}`, { state: { user } });
+  const handleView = (client) => {
+    navigate(`/admin-app/ver-usuario/${client.idUsuario}`, { state: { client } });
+  };
+
+  const handleUpdate = (client) => {
+    navigate('/admin-app/agregar-usuario', { state: { client } });
   };
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredClients.slice(indexOfFirstItem, indexOfLastItem);
 
   return (
-    <div className="productos-container">
+    <div className="usuarios-container">
       <div className="Cabecita1">
         <div>Usuarios Registrados</div>
         <div className="agregacion-prod">
@@ -52,6 +62,7 @@ function Usuarios({ usuarios, onDesactivarUsuario }) {
         <thead>
           <tr>
             <th>ID</th>
+            <th>Usuario</th>
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Correo</th>
@@ -61,18 +72,19 @@ function Usuarios({ usuarios, onDesactivarUsuario }) {
           </tr>
         </thead>
         <tbody>
-          {currentItems.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.nombre}</td>
-              <td>{user.apellido}</td>
-              <td>{user.correo}</td>
-              <td>{user.FechaRegistro}</td>
-              <td>{user.Estado}</td>
+          {currentItems.map((client) => (
+            <tr key={client.id}>
+              <td>{client.id}</td>
+              <td>{client.usuario.usuario}</td>
+              <td>{client.nombre}</td>
+              <td>{client.apellido}</td>
+              <td>{client.correo}</td>
+              <td>{client.fechaRegistro}</td>
+              <td>{client.estado}</td>
               <td>
-                <button onClick={() => handleView(user)}>Ver</button>
-                <button onClick={() => handleUpdate(user)}>Actualizar</button>
-                <button onClick={() => handleDelete(user.id)}>Desactivar</button>
+                <button onClick={() => handleView(client)}>Ver</button>
+                <button onClick={() => handleUpdate(client)}>Actualizar</button>
+                <button onClick={() => handleDelete(client.id)}>Desactivar</button>
               </td>
             </tr>
           ))}
@@ -91,4 +103,4 @@ function Usuarios({ usuarios, onDesactivarUsuario }) {
   );
 }
 
-export default Usuarios;
+export default UsuariosRegistrados;
