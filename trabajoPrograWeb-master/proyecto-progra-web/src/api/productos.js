@@ -1,15 +1,17 @@
-import base from './base.js'
+import base from './base.js';
 
-const endpoint = 'productos'
+const endpoint = 'productos';
 
-const findAll = async () => await base.get(endpoint)
+const findAll = async () => await base.get(endpoint);
 
-const create = async (payload) => await base.post(endpoint, payload)
+const findOne = async (id) => await base.get(`${endpoint}/${id}`);
 
-const update = async (payload) => await base.put(endpoint, payload)
+const create = async (payload) => await base.post(endpoint, payload);
 
-const remove = async (id) => await base.remove(`${endpoint}/${id}`)
+const update = async (id, payload) => await base.put(`${endpoint}/${id}`, payload);
 
-const api = { findAll, create, update, remove }
+const remove = async (id) => await base.remove(`${endpoint}/${id}`);
+
+const api = { findAll, findOne, create, update, remove };
 
 export default api;

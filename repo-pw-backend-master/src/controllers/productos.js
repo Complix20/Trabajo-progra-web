@@ -27,7 +27,7 @@ const create = async (req, res) => {
 const findOne = async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await repository.findOne(id);
+        const result = await repository.findOne({ where: { id } });
         return sendResult(result, res);
     } catch (error) {
         console.error(error);
