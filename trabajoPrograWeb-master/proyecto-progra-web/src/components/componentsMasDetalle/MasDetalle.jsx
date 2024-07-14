@@ -22,6 +22,11 @@ const MasDetalle = () => {
     fetchProduct();
   }, [productId]);
 
+  const handleAddToCart = () => {
+    // Logic to add the product to the cart
+    console.log(`Product ${productId} added to cart`);
+  };
+
   if (!product) {
     return (
       <>
@@ -43,6 +48,7 @@ const MasDetalle = () => {
             <section className="Caracteristicas">
               <h3>Nombre del producto: {product.descripcion}</h3>
               <h3>Precio del producto: ${product.precio}</h3>
+              <button className="agregar-carrito" onClick={handleAddToCart}>Agregar al Carrito</button>
             </section>
           </div>
         </span>

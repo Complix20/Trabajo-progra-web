@@ -1,18 +1,19 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layers from './Layers';
 import TopBar from '../componentsTopBar/TopBar';
 import Footer from '../componentsFooter/Footer';
 import './carroComprasStyle.css';
 import { Link } from 'react-router-dom';
-import { CartContext } from './context';
 
 function SectionCarroCompras() {
-    const { products, savedProducts, subtotal, setSubtotal, checkout } = useContext(CartContext);
+    const [products, setProducts] = useState([]);
+    const [savedProducts, setSavedProducts] = useState([]);
+    const [subtotal, setSubtotal] = useState(0);
 
     useEffect(() => {
         const totalProductos = sumarPrecios(products);
         setSubtotal(totalProductos);
-    }, [products, setSubtotal]);
+    }, [products]);
 
     function sumarPrecios(productos) {
         let total = 0;
@@ -21,6 +22,11 @@ function SectionCarroCompras() {
         }
         return total.toFixed(2);
     }
+
+    const checkout = () => {
+        // Lógica para el checkout
+        console.log("Proceeding to checkout with subtotal:", subtotal);
+    };
 
     return (
         <>
